@@ -284,22 +284,20 @@ class CRUDController extends Controller
 
             $this->checkSubProp($field, $data);
 
-            if ($data['type'] == 'link' || $data['is_link']) {
-                $data['is_link'] = true;
-                if (!$data['template']) {
+            switch($data['type']) {
+                case 'link':
+                    $data['is_link'] = true;
                     $data['template'] = '/admin/' . $this->alias . '/edit/%' . $this->model->id_field . '%';
-                }
+                    break;
+                case 'image':
+                    $data['max_width'] = $data['max_width'] ?? 40;
+                    $data['max_height'] = $data['max_height'] ?? 30;
+                    $data['dir_path'] = $data['dir_path'] ?? '/images/';
+                    $data['orderable'] = $data['orderable'] ?? false;
+                    $data['searching'] = $data['searching'] ?? false;
+                    break;
             }
-
-            if ($data['type'] == 'image') {
-                $data['max_width'] = $data['max_width'] ?? 40;
-                $data['max_height'] = $data['max_height'] ?? 30;
-                $data['dir_path'] = $data['dir_path'] ?? '/images/';
-                $data['orderable'] = $data['orderable'] ?? false;
-                $data['searching'] = $data['searching'] ?? false;
-            }
-
-            if ($data['extra']) {
+            if ($data['extra'] ?? false) {
                 $data['orderable'] = false;
                 $data['searching'] = false;
             }
