@@ -292,25 +292,11 @@ class CRUDController extends Controller
             }
 
             if ($data['type'] == 'image') {
-                if (!$data['max_width']) {
-                    $data['max_width'] = 40;
-                }
-
-                if (!$data['max_height']) {
-                    $data['max_height'] = 30;
-                }
-
-                if (!$data['dir_path']) {
-                    $data['dir_path'] = '/images/';
-                }
-
-                if (!array_key_exists('orderable', $data)) {
-                    $data['orderable'] = false;
-                }
-
-                if (!array_key_exists('searching', $data)) {
-                    $data['searching'] = false;
-                }
+                $data['max_width'] = $data['max_width'] ?? 40;
+                $data['max_height'] = $data['max_height'] ?? 30;
+                $data['dir_path'] = $data['dir_path'] ?? '/images/';
+                $data['orderable'] = $data['orderable'] ?? false;
+                $data['searching'] = $data['searching'] ?? false;
             }
 
             if ($data['extra']) {
@@ -318,13 +304,8 @@ class CRUDController extends Controller
                 $data['searching'] = false;
             }
 
-            if (!array_key_exists('orderable', $data)) {
-                $data['orderable'] = true;
-            }
-
-            if (!array_key_exists('searching', $data)) {
-                $data['searching'] = true;
-            }
+            $data['orderable'] = $data['orderable'] ?? true;
+            $data['searching'] = $data['searching'] ?? true;
 
             $field = $this->recursiveCreateRelativeFieldName($field, $data);
 
