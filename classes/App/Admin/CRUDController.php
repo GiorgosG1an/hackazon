@@ -379,7 +379,7 @@ class CRUDController extends Controller
 
             $this->setMultipleField($data);
 
-            $this->setType($data);
+            $this->setTypeImage($data);
 
 
             $result[$field] = $data;
@@ -405,7 +405,7 @@ class CRUDController extends Controller
         }
     }
 
-    private function setType(&$data) {
+    private function setTypeImage(&$data) {
         if ($data['type'] == 'image') {
             $data['max_width'] = $data['max_width'] ?? 400;
 
