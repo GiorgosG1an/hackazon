@@ -277,9 +277,9 @@ class CRUDController extends Controller
 
             $this->checkSubProp($field, $data);
 
-            $this->setTypeField($field, $data);
+            $this->setTypeField($data);
 
-            $this->setExtraField($field, $data);
+            $this->setExtraField($data);
 
             $data['orderable'] = $data['orderable'] ?? true;
             $data['searching'] = $data['searching'] ?? true;
@@ -292,7 +292,7 @@ class CRUDController extends Controller
         $listFields = $result;
         unset($data);
 
-        $this->setIdField($field, $data);
+        $this->setIdField($listFields);
         
         return $listFields;
     }
@@ -317,7 +317,7 @@ class CRUDController extends Controller
         }
     }
 
-    private function setTypeField($field, &$data) {
+    private function setTypeField(&$data) {
             if ($data['type'] == 'link' || $data['is_link']) {
                 $data['is_link'] = true;
                 if (!$data['template']) {
@@ -334,14 +334,15 @@ class CRUDController extends Controller
             }
     }
 
-    private function setExtraField($field, &$data) {
+    private function setExtraField(&$data) {
         if ($data['extra']) {
             $data['orderable'] = false;
             $data['searching'] = false;
         }
     }
 
-    private function setIdField($field, &$data) {
+    private function setIdField(&$listFields)
+    {
         if (array_key_exists($this->model->id_field, $listFields)) {
             if (!array_key_exists('type', $listFields[$this->model->id_field])) {
                 $listFields[$this->model->id_field]['type'] = 'link';
