@@ -267,23 +267,57 @@ class CRUDController extends Controller
 
         $result = [];
         foreach ($listFields as $field => &$data) {
-            if (is_numeric($field) && is_string($data)) {
-                $field = $data;
-                $data = [];
-            }
-
+            
+            $field = $this->normalizeField($field, $data);
             $data['original_field_name'] = $field;
 
-            if (!$data['type'] && $field != $this->model->id_field) {
-                $data['type'] = 'text';
-            }
+            $this->setType($field, $data);
 
-            if (!array_key_exists('title', $data) || $data['title'] === null) {
-                $data['title'] = ucwords(implode(' ', preg_split('/_+/', $field, -1, PREG_SPLIT_NO_EMPTY)));
-            }
+            $this->setTitle($field, $data);
 
             $this->checkSubProp($field, $data);
 
+            $this->setTypeField($field, $data);
+
+            $this->setExtraField($field, $data);
+
+            $data['orderable'] = $data['orderable'] ?? true;
+            $data['searching'] = $data['searching'] ?? true;
+
+            $field = $this->recursiveCreateRelativeFieldName($field, $data);
+
+            $result[$field] = $data;
+        }
+
+        $listFields = $result;
+        unset($data);
+
+        $this->setIdField($field, $data);
+        
+        return $listFields;
+    }
+
+    private function normalizeField(&$field, &$data) {
+        if (is_numeric($field) && is_string($data)) {
+            $field = $data;
+            $data = [];
+        }
+        return $field;
+    }
+
+    private function setType($field, &$data) {
+        if (!$data['type'] && $field != $this->model->id_field) {
+            $data['type'] = 'text';
+        }
+    }
+
+    private function setTitle($field, &$data) {
+        if (!array_key_exists('title', $data) || $data['title'] === null) {
+            $data['title'] = ucwords(implode(' ', preg_split('/_+/', $field, -1, PREG_SPLIT_NO_EMPTY)));
+        }
+    }
+
+    private function setTypeField($field, &$data) {
             if ($data['type'] == 'link' || $data['is_link']) {
                 $data['is_link'] = true;
                 if (!$data['template']) {
@@ -298,21 +332,16 @@ class CRUDController extends Controller
                 $data['orderable'] = $data['orderable'] ?? false;
                 $data['searching'] = $data['searching'] ?? false;
             }
+    }
 
-            if ($data['extra']) {
-                $data['orderable'] = false;
-                $data['searching'] = false;
-            }
-
-            $data['orderable'] = $data['orderable'] ?? true;
-            $data['searching'] = $data['searching'] ?? true;
-
-            $field = $this->recursiveCreateRelativeFieldName($field, $data);
-
-            $result[$field] = $data;
+    private function setExtraField($field, &$data) {
+        if ($data['extra']) {
+            $data['orderable'] = false;
+            $data['searching'] = false;
         }
-        $listFields = $result;
-        unset($data);
+    }
+
+    private function setIdField($field, &$data) {
         if (array_key_exists($this->model->id_field, $listFields)) {
             if (!array_key_exists('type', $listFields[$this->model->id_field])) {
                 $listFields[$this->model->id_field]['type'] = 'link';
@@ -320,8 +349,6 @@ class CRUDController extends Controller
             }
             $listFields[$this->model->id_field]['width'] = '60';
         }
-
-        return $listFields;
     }
 
     protected function getEditFields()
