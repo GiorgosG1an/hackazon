@@ -368,19 +368,48 @@ class CRUDController extends Controller
 
         $result = [];
         foreach ($editFields as $field => &$data) {
-            
-            $field = $this->normalizeField($field, $data);
+            if (is_numeric($field) && is_string($data)) {
+                $field = $data;
+                $data = [];
+            }
 
             $data['original_field_name'] = $field;
 
-            $this->setType($field, $data);
+            if (!$data['type']) {
+                $data['type'] = 'text';
+            }
 
-            $this->setLabel($data);
+            if (!$data['label']) {
+                $data['label'] = ucwords(implode(' ', preg_split('/_+/', $field, -1, PREG_SPLIT_NO_EMPTY)));
+            }
 
-            $this->setMultipleField($data);
+            if ($data['select'] && !array_key_exists('multiple', $data)) {
+                $data['multiple'] = false;
+            }
 
-            $this->setType($data);
+            if ($data['type'] == 'image') {
+                if (!$data['max_width']) {
+                    $data['max_width'] = 400;
+                }
 
+                if (!$data['max_height']) {
+                    $data['max_height'] = 300;
+                }
+
+                if (!$data['dir_path']) {
+                    $data['dir_path'] = '/images/';
+                }
+            }
+
+            if ($data['type'] == 'image' || $data['type'] == 'file') {
+                if (!$data['dir_path']) {
+                    $data['dir_path'] = '/upload/';
+                }
+
+                if (!array_key_exists('abs_path', $data)) {
+                    $data['abs_path'] = false;
+                }
+            }
 
             $result[$field] = $data;
         }
@@ -391,35 +420,6 @@ class CRUDController extends Controller
 
         $this->preparedEditFields = $editFields;
         return $this->preparedEditFields;
-    }
-
-    private function setLabel(&$data) {
-        if (!$data['label']) {
-            $data['label'] = ucwords(implode(' ', preg_split('/_+/', $field, -1, PREG_SPLIT_NO_EMPTY)));
-        }
-    }
-
-    private function setMultipleField(&$data) {
-        if ($data['select'] && !array_key_exists('multiple', $data)) {
-            $data['multiple'] = false;
-        }
-    }
-
-    private function setType(&$data) {
-        if ($data['type'] == 'image') {
-            $data['max_width'] = $data['max_width'] ?? 400;
-
-            $data['max_height'] = $data['max_height'] ?? 300;
-
-            $data['dir_path'] = $data['dir_path'] ?? '/images/';
-            
-        }
-
-        if ($data['type'] == 'image' || $data['type'] == 'file') {
-            $data['dir_path'] = $data['dir_path'] ?? '/upload/';
-
-            array_key_exists('abs_path', $data) = $data['abs_path'] ?? false;
-        }
     }
 
     /**
