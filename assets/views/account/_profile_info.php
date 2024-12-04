@@ -4,8 +4,8 @@
 		<table class="table profile-table table-striped">
 		<thead>
 			<tr>
-				<td>
-				</td>
+				<th scope="col">Field</th>
+				<th scope="col">Value</th>
 			</tr>
 		</thead>
 		<tbody>
